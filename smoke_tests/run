@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -e
+
+readonly TESTSDIR="$(dirname "$(readlink -f "$0")")"
+export RUBYLIB="$(dirname "$TESTSDIR")/lib"
+readonly TMPDIR="$(dirname "$TESTSDIR")/tmp/smoke_test"
+
+rm -rf "$TMPDIR"/*
+
+for t in "$TESTSDIR"/[0-9]*.rb; do
+	testname="$(basename "$t" .rb)"
+	echo "Running $testname"
+
+	if ! ruby $t; then
+		echo "$testname FAILED!" >&2
+		echo "All the gory details are in $TMPDIR/$testname/log" >&2
+		exit 1
+	fi
+done
+
+echo "EPIC WIN!" >&2
